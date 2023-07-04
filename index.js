@@ -28,3 +28,15 @@ app.use("/client", clientRoutes);
 app.use("/general", generalRoutes);
 app.use("/management", managementRoutes);
 app.use("/sales", salesRoutes);
+
+/* MONGOOSE SETUP */
+const PORT = process.env.PORT || 9000;
+try {
+  await mongoose.connect(process.env.MONGO_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+  app.listen(PORT, () => console.log(`Server Port: ${PORT}`));
+} catch (error) {
+  console.log(`Error connecting to database: ${error}`);
+}
