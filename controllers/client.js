@@ -1,6 +1,7 @@
 import Product from "../models/Product.js";
 import ProductStat from "../models/ProductStat.js";
 import User from "../models/User.js";
+import Transaction from "../models/Transaction.js";
 
 const getProducts = async (req, res) => {
   try {
@@ -32,4 +33,43 @@ const getCustomers = async (req, res) => {
   }
 };
 
-export { getProducts };
+const getTransactions = async (req, res) => {
+  try {
+    // Server side pagination, sort request should look like: { "field" : "userId", "sort": "desc"}
+    const { page = 1, pageSize = 20, sort = null, search = "" } = req.query;
+
+    // formatted sort requirements should look like { userId: -1}
+    const generateSort = () => {
+      const sortParsed = JSON.parse(sort);
+      const sortFormatted = {
+        [sortParsed.field]: (sortParsed = "asc" ? 1 : -1),
+      };
+      return sortFormatted;
+    };
+
+    const sortFormatted = Boolean(sort) ? generateSort() : {};
+
+    const transactions = await Transaction.find({
+      $or: [
+        { cost: { $regex: new RegExp(search, "i") } },
+        { userId: { $regex: new RegExp(search, "i") } },
+      ],
+    })
+      .sort(sortFormatted)
+      .skip(page * pageSize)
+      .limit(pageSize);
+
+    const total = await Transaction.countDocuments({
+      name: { $regex: search, $options: "i" },
+    });
+
+    res.status(200).json({
+      transactions,
+      total,
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export { getProducts, getCustomers };
