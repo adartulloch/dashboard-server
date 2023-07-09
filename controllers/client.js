@@ -41,10 +41,10 @@ const getTransactions = async (req, res) => {
     // formatted sort requirements should look like { userId: -1}
     const generateSort = () => {
       const sortParsed = JSON.parse(sort);
-      const sortFormatted = {
-        [sortParsed.field]: (sortParsed = "asc" ? 1 : -1),
+      const formattedSort = {
+        [sortParsed.field]: sortParsed === "asc" ? 1 : -1,
       };
-      return sortFormatted;
+      return formattedSort;
     };
 
     const sortFormatted = Boolean(sort) ? generateSort() : {};
@@ -72,4 +72,4 @@ const getTransactions = async (req, res) => {
   }
 };
 
-export { getProducts, getCustomers };
+export { getProducts, getCustomers, getTransactions };
